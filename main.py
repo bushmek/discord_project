@@ -24,12 +24,16 @@ def get_last_match(player_id):
     return match.json()["items"][0]
 
 
-def get_match_info(match_id):
+def get_match_stat(match_id):
     match_info = requests.get(
-        f"https://open.faceit.com/data/v4/matches/{match_id}", headers=headers
+        f"https://open.faceit.com/data/v4/matches/{match_id}/stats", headers=headers
     )
     return match_info.json()
 
+
+def get_last_stat(player_id):
+    match_stat = requests.get(f"https://open.faceit.com/data/v4/players/{player_id}/games/cs2/stats", headers=headers, params={"limit": 1},)
+    return match_stat.json()['items'][0]
 
 def get_player_elo(player_id):
     elo = requests.get(
@@ -52,7 +56,6 @@ def get_player_team(match):
 
 def main():
     last_match_id = None
-    elo = None
 
     while True:
         match = get_last_match(PLAYER_ID)
@@ -62,12 +65,24 @@ def main():
 
         if last_match_id and last_match_id != match_id:
             elo = get_player_elo(PLAYER_ID)
+            stat = get_last_stat(PLAYER_ID)['stats']
+            kd_ratio = stat['K/D Ratio']
+            kda = f"{stat['Kills']}/{stat['Deaths']}/{stat['Assists']}"
             if get_player_team(match) == match["results"]["winner"]:
-                discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉\nElo: {elo} 🤓"
+                discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉"
+                if float(kd_ratio) < 1.0:
+                    discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
+                else:
+                    discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
             else:
                 discord_msg = (
-                    f"🎮 Володя закінчив грати... і програв. Анлука 😞\nElo: {elo} 🤡"
+                    f"🎮 Володя закінчив грати... і програв. Анлука 😞"
                 )
+                if float(kd_ratio) < 1.0:
+                    discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
+                else:
+                    discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
+            discord_msg += f"\n👴 Повна статистика: {kda}. Elo: {elo} 👴"
             requests.post(WEBHOOK_LINK, json={"content": discord_msg})
 
         if match_status != "ongoing":
