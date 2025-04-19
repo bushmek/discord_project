@@ -61,7 +61,7 @@ def main():
         discord_msg = ""
 
         if last_match_id and last_match_id != match_id:
-            elo = get_player_elo(PLAYER_ID) - elo
+            elo = get_player_elo(PLAYER_ID)
             if get_player_team(match) == match["results"]["winner"]:
                 discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉\nElo: {elo} 🤓"
             else:
