@@ -61,21 +61,13 @@ def main():
         discord_msg = ""
 
         if last_match_id and last_match_id != match_id:
-            if match_status == "ongoing":
-                elo = get_player_elo(PLAYER_ID)
-                discord_msg = "😎👨‍🦽5eeYou5oon стартанув катку👨‍🦽😎"
-            elif match_status == "finished":
-                elo_diff = get_player_elo(PLAYER_ID) - elo
-                if get_player_team(match) == match["results"]["winner"]:
-                    discord_msg = (
-                        "🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉"
-                    )
-                else:
-                    discord_msg = "🎮 Володя закінчив грати... і програв. Анлука 😞"
-                if elo_diff <= 0:
-                    discord_msg += f"\nElo: {elo_diff} 🤡"
-                elif elo_diff > 0:
-                    discord_msg += f"\nElo: +{elo_diff} 🤓"
+            elo = get_player_elo(PLAYER_ID) - elo
+            if get_player_team(match) == match["results"]["winner"]:
+                discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉\nElo: {elo} 🤓"
+            else:
+                discord_msg = (
+                    f"🎮 Володя закінчив грати... і програв. Анлука 😞\nElo: {elo} 🤡"
+                )
             requests.post(WEBHOOK_LINK, json={"content": discord_msg})
 
         if match_status != "ongoing":
@@ -83,9 +75,9 @@ def main():
 
         time.sleep(90)
 
+
 if __name__ == "__main__":
     main()
-    
 
 
 # print(match.json()["items"][0])
