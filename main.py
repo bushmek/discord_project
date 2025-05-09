@@ -1,10 +1,13 @@
 import time
 import os
-
+import logging
+import traceback
 import requests
 from dotenv import load_dotenv
 
+
 load_dotenv()
+logging.basicConfig(filename='huinya_name.log', level=logging.ERROR)
 
 WEBHOOK_LINK = os.getenv("WEBHOOK_LINK")
 FACEIT_API_KEY = os.getenv("FACEIT_API_KEY")
@@ -92,8 +95,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
+    try:
+        main()
+    except Exception as e:
+        logging.error("Сталася помилка:\n%s", traceback.format_exc())
 
 # print(match.json()["items"][0])
 # with open("data.json",'w') as file:
