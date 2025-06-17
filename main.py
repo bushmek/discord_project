@@ -60,38 +60,35 @@ def get_player_team(match):
 def main():
     last_match_id = None
 
-    while True:
-        match = get_last_match(PLAYER_ID)
-        match_id = match["match_id"]
-        match_status = match["status"]
-        discord_msg = ""
-
-        if last_match_id and last_match_id != match_id:
-            elo = get_player_elo(PLAYER_ID)
-            stat = get_last_stat(PLAYER_ID)['stats']
-            kd_ratio = stat['K/D Ratio']
-            kda = f"{stat['Kills']}/{stat['Deaths']}/{stat['Assists']}"
-            if get_player_team(match) == match["results"]["winner"]:
-                discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉"
-                if float(kd_ratio) < 1.0:
-                    discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
-                else:
-                    discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
+    match = get_last_match(PLAYER_ID)
+    match_id = match["match_id"]
+    match_status = match["status"]
+    discord_msg = ""
+    if last_match_id and last_match_id != match_id:
+        elo = get_player_elo(PLAYER_ID)
+        stat = get_last_stat(PLAYER_ID)['stats']
+        kd_ratio = stat['K/D Ratio']
+        kda = f"{stat['Kills']}/{stat['Deaths']}/{stat['Assists']}"
+        if get_player_team(match) == match["results"]["winner"]:
+            discord_msg = f"🎮 Володя закінчив грати... і виграв. Привітання в чат 🎉"
+            if float(kd_ratio) < 1.0:
+                discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
             else:
-                discord_msg = (
-                    f"🎮 Володя закінчив грати... і програв. Анлука 😞"
-                )
-                if float(kd_ratio) < 1.0:
-                    discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
-                else:
-                    discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
-            discord_msg += f"\n👴 Повна статистика: {kda}. Elo: {elo} 👴"
-            requests.post(WEBHOOK_LINK, json={"content": discord_msg})
+                discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
+        else:
+            discord_msg = (
+                f"🎮 Володя закінчив грати... і програв. Анлука 😞"
+            )
+            if float(kd_ratio) < 1.0:
+                discord_msg += f"\nЧел навіть в КД не вийшов: {kd_ratio} 🤡"
+            else:
+                discord_msg += f"\nХарош хочаб в Кд вийшов: {kd_ratio} 🤓"
+        discord_msg += f"\n👴 Повна статистика: {kda}. Elo: {elo} 👴"
+        requests.post(WEBHOOK_LINK, json={"content": discord_msg})
 
-        if match_status != "ongoing":
-            last_match_id = match_id
+    if match_status != "ongoing":
+        last_match_id = match_id
 
-        time.sleep(90)
 
 
 if __name__ == "__main__":
@@ -99,7 +96,3 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         logging.error("Сталася помилка:\n%s", traceback.format_exc())
-
-# print(match.json()["items"][0])
-# with open("data.json",'w') as file:
-#     json.dump(match.json(), file, indent=4)
